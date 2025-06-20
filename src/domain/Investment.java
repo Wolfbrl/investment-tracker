@@ -10,21 +10,40 @@ public class Investment implements Comparable<Investment> {
 
 	private String name;
 	private LocalDate startDate;
-	private BigDecimal amount;
+
 	private Currency currency;
 	private InvestmentType type;
 	private String note;
 	private final String id;
+	private BigDecimal initialValue;
+	private BigDecimal currentValue;
 
-	public Investment(String name, LocalDate startDate, BigDecimal amount, Currency currency, InvestmentType type) {
+	public Investment(String name, LocalDate startDate, BigDecimal initialValue, Currency currency,
+			InvestmentType type) {
 		setName(name);
 		setStartDate(startDate);
-		setAmount(amount);
+		setInitialValue(initialValue);
+		setCurrentValue(initialValue);
 		setCurrency(currency);
 		setType(type);
-
 		this.id = String.format("INV-%s-%s", type.name(), UUID.randomUUID().toString());
 
+	}
+
+	public BigDecimal getInitialValue() {
+		return initialValue;
+	}
+
+	public void setInitialValue(BigDecimal initialValue) {
+		this.initialValue = initialValue;
+	}
+
+	public BigDecimal getCurrentValue() {
+		return currentValue;
+	}
+
+	public void setCurrentValue(BigDecimal currentValue) {
+		this.currentValue = currentValue;
 	}
 
 	public String getName() {
@@ -41,14 +60,6 @@ public class Investment implements Comparable<Investment> {
 
 	public void setStartDate(LocalDate startDate) {
 		this.startDate = startDate;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
 	}
 
 	public Currency getCurrency() {
@@ -71,7 +82,10 @@ public class Investment implements Comparable<Investment> {
 		return note;
 	}
 
-	public void setNote(String note) {
+	public void addNote(String note) {
+		if (note.length() > 150) {
+			throw new IllegalArgumentException("The note can only have a maximum of 150 characters");
+		}
 		this.note = note;
 	}
 
@@ -81,7 +95,8 @@ public class Investment implements Comparable<Investment> {
 
 	@Override
 	public String toString() {
-		return String.format("[%s] %s %s - %s %s (%s)", id, startDate, name, amount, currency, type);
+		return String.format("[%s] %s %s - %s (%s), Initial: %s, Current: %s", id, startDate, name, currency, type,
+				initialValue, currentValue);
 	}
 
 	@Override
@@ -105,6 +120,19 @@ public class Investment implements Comparable<Investment> {
 			return false;
 		Investment other = (Investment) obj;
 		return Objects.equals(id, other.id);
+	}
+
+	public BigDecimal getProfitOrLoss() {
+		return currentValue.subtract(initialValue);
+	}
+
+	public void updateCurrentValueUsingPercentage(BigDecimal percentage) {
+		BigDecimal multipier = BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100)));
+		this.currentValue = this.currentValue.multiply(multipier);
+	}
+
+	public void updateCurrentValueUsingAmount(BigDecimal amount) {
+		this.currentValue = this.currentValue.add(amount);
 	}
 
 }
