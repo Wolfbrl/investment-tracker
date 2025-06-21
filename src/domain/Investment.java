@@ -4,30 +4,40 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
-import enums.InvestmentType;
+import enums.*;
 
 public class Investment implements Comparable<Investment> {
 
 	private String name;
 	private LocalDate startDate;
 
-	private Currency currency;
+	private Currencies currency;
 	private InvestmentType type;
-	private String note;
+	private String note = "";
 	private final String id;
 	private BigDecimal initialValue;
 	private BigDecimal currentValue;
+	private User user;
 
-	public Investment(String name, LocalDate startDate, BigDecimal initialValue, Currency currency,
-			InvestmentType type) {
+	public Investment(String name, LocalDate startDate, BigDecimal initialValue, Currencies currency,
+			InvestmentType type, User user) {
 		setName(name);
 		setStartDate(startDate);
 		setInitialValue(initialValue);
 		setCurrentValue(initialValue);
 		setCurrency(currency);
 		setType(type);
+		setUser(user);
 		this.id = String.format("INV-%s-%s", type.name(), UUID.randomUUID().toString());
 
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public BigDecimal getInitialValue() {
@@ -62,11 +72,11 @@ public class Investment implements Comparable<Investment> {
 		this.startDate = startDate;
 	}
 
-	public Currency getCurrency() {
+	public Currencies getCurrency() {
 		return currency;
 	}
 
-	public void setCurrency(Currency currency) {
+	public void setCurrency(Currencies currency) {
 		this.currency = currency;
 	}
 
@@ -95,8 +105,8 @@ public class Investment implements Comparable<Investment> {
 
 	@Override
 	public String toString() {
-		return String.format("[%s] %s %s - %s (%s), Initial: %s, Current: %s", id, startDate, name, currency, type,
-				initialValue, currentValue);
+		return String.format("[%s] %s %s %s - %s (%s), Initial: %s, Current: %s", id, user.getUsername(), startDate,
+				name, currency, type, initialValue, currentValue);
 	}
 
 	@Override

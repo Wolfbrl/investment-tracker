@@ -1,13 +1,13 @@
 package enums;
 
-public enum Currency {
+public enum Currencies {
 
 	EUR("Euro", "€"), USD("US Dollar", "$"), GBP("British Pound", "£"), JPY("Japanese Yen", "¥");
 
 	private final String fullName;
 	private final String symbol;
 
-	Currency(String fullname, String symbol) {
+	Currencies(String fullname, String symbol) {
 		this.fullName = fullname;
 		this.symbol = symbol;
 	}
