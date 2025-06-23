@@ -9,11 +9,14 @@ public class User implements Comparable<User> {
 	private String username;
 //	private String email;
 	private String password;
+	private String salt;
 
-	public User(String username, String password) {
+	public User(String username, String password, String salt) {
 		investments = new ArrayList<>();
 		setUsername(username);
 		setPassword(password);
+		this.salt = salt;
+
 	}
 
 	public List<Investment> getInvestments() {
@@ -46,8 +49,8 @@ public class User implements Comparable<User> {
 
 	@Override
 	public String toString() {
-		return String.format("User %s with password %s has made %d investments", this.username, this.password,
-				this.investments.size());
+		return String.format("User %s with password %s and salt %s has made %d investments", this.username,
+				this.password, this.salt, this.investments.size());
 	}
 
 	public void addInvestment(Investment investment) {
@@ -64,7 +67,7 @@ public class User implements Comparable<User> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(password, username);
+		return Objects.hash(username);
 	}
 
 	@Override
@@ -76,12 +79,16 @@ public class User implements Comparable<User> {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return Objects.equals(password, other.password) && Objects.equals(username, other.username);
+		return Objects.equals(username, other.username);
 	}
 
 	@Override
 	public int compareTo(User o) {
 		return username.compareTo(o.username);
+	}
+
+	public String getSalt() {
+		return this.salt;
 	}
 
 }

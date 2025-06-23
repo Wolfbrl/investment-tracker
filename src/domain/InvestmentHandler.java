@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import enums.*;
+import utils.PasswordUtils;
 
 public class InvestmentHandler {
 
@@ -12,13 +13,6 @@ public class InvestmentHandler {
 
 	public InvestmentHandler() {
 		allInvestments = new ArrayList<>();
-	}
-
-	public void addInvestment(String name, LocalDate startDate, BigDecimal initialValue, Currencies currency,
-			InvestmentType investmentType, User user) {
-		Investment newInvestment = new Investment(name, startDate, initialValue, currency, investmentType, user);
-		allInvestments.add(newInvestment);
-		user.addInvestment(newInvestment);
 	}
 
 	public void removeInvestment(String id) {
@@ -40,8 +34,24 @@ public class InvestmentHandler {
 		this.allInvestments = investments;
 	}
 
-	public void addNote(String id, String note) {
-		getInvestmentById(id).addNote(note);
+	public void setNote(String id, String note) {
+		getInvestmentById(id).setNote(note);
+	}
+
+	public void addInvestment(String id, String name, LocalDate startDate, BigDecimal initialValue,
+			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, User user, String note) {
+		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
+				investmentType, user, note);
+		allInvestments.add(newInvestment);
+		user.addInvestment(newInvestment);
+
+	}
+
+	public void createUser(String username, String password) {
+		String salt = PasswordUtils.generateSalt();
+		String hashedpassword = PasswordUtils.hashPassword(password, salt);
+		User user = new User(username, hashedpassword, salt);
+
 	}
 
 }

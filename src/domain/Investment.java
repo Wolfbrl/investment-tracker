@@ -2,7 +2,7 @@ package domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Objects;
 
 import enums.*;
 
@@ -19,16 +19,19 @@ public class Investment implements Comparable<Investment> {
 	private BigDecimal currentValue;
 	private User user;
 
-	public Investment(String name, LocalDate startDate, BigDecimal initialValue, Currencies currency,
-			InvestmentType type, User user) {
+	public Investment(String id, String name, LocalDate startDate, BigDecimal initialValue, BigDecimal currentValue,
+			Currencies currency, InvestmentType type, User user, String note) {
+		this.id = id;
 		setName(name);
 		setStartDate(startDate);
 		setInitialValue(initialValue);
-		setCurrentValue(initialValue);
+		setCurrentValue(currentValue);
 		setCurrency(currency);
 		setType(type);
 		setUser(user);
-		this.id = String.format("INV-%s-%s", type.name(), UUID.randomUUID().toString());
+		setNote(note);
+
+//		this.id = String.format("INV-%s-%s", type.name(), UUID.randomUUID().toString());
 
 	}
 
@@ -92,9 +95,9 @@ public class Investment implements Comparable<Investment> {
 		return note;
 	}
 
-	public void addNote(String note) {
-		if (note.length() > 150) {
-			throw new IllegalArgumentException("The note can only have a maximum of 150 characters");
+	public void setNote(String note) {
+		if (note.length() > 100) {
+			throw new IllegalArgumentException("The note can only have a maximum of 100 characters");
 		}
 		this.note = note;
 	}

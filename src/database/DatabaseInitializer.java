@@ -14,6 +14,7 @@ public class DatabaseInitializer {
 					CREATE TABLE IF NOT EXISTS user (
 					    username TEXT PRIMARY KEY,
 					    pwd TEXT NOT NULL,
+					    salt TEXT NOT NULL,
 					    numberofinvestments INTEGER DEFAULT 0
 					);
 					""";
