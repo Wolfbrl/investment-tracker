@@ -18,3 +18,7 @@ out/
 # OS-bestanden
 .DS_Store
 Thumbs.db
+
+# ignore local SQLite database
+data/investment_tracker.db
+

@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class Database {
 	public static Connection connect() {
-		String url = "jdbc:sqlite:data/investment_tracker.db"; // in je projectmap
+		String url = "jdbc:sqlite:data/investment_tracker.db";
 
 		try {
 			return DriverManager.getConnection(url);
