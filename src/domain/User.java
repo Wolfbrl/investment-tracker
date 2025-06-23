@@ -20,6 +20,10 @@ public class User implements Comparable<User> {
 		return investments;
 	}
 
+	public int getNumberOfInvestments() {
+		return investments.size();
+	}
+
 	public void setInvestments(List<Investment> investments) {
 		this.investments = investments;
 	}

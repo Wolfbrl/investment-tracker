@@ -1,8 +1,6 @@
 package main;
 
-import java.sql.Connection;
-
-import database.Database;
+import database.DatabaseInitializer;
 import domain.InvestmentHandler;
 import gui.RegisterLoginScreen;
 import javafx.application.Application;
@@ -16,11 +14,7 @@ public class StartUp extends Application {
 //		InvestmentHandler investmenthandler = new InvestmentHandler();
 //
 //		new TestApplication(investmenthandler).runTest();
-		Connection conn = Database.connect();
-		if (conn != null) {
-			System.out.println("Connectie succesvol!");
-		}
-
+		DatabaseInitializer.initialize();
 		launch(args);
 
 	}
