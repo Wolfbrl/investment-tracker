@@ -2,36 +2,32 @@ package domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 import enums.*;
 import utils.PasswordUtils;
 
 public class InvestmentHandler {
 
-	private List<Investment> allInvestments;
+	private UserRepository repo;
 
 	public InvestmentHandler() {
-		allInvestments = new ArrayList<>();
+		repo = new UserRepository();
 	}
 
 	public void removeInvestment(String id) {
 		Investment investment = getInvestmentById(id);
 		User user = investment.getUser();
-		allInvestments.remove(investment);
+		repo.removeInvestment(investment);
 		user.removeInvestment(investment);
 	}
 
 	public Investment getInvestmentById(String id) {
-		return allInvestments.stream().filter(x -> x.getId().equals(id)).findFirst().orElse(null);
+		return repo.giveAllInvestments().stream().filter(x -> x.getId().equals(id)).findFirst().orElse(null);
 	}
 
-	public List<Investment> getInvestments() {
-		return allInvestments;
-	}
-
-	public void setInvestments(List<Investment> investments) {
-		this.allInvestments = investments;
+	public List<Investment> giveAllInvestments() {
+		return repo.giveAllInvestments();
 	}
 
 	public void setNote(String id, String note) {
@@ -42,7 +38,7 @@ public class InvestmentHandler {
 			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, User user, String note) {
 		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
 				investmentType, user, note);
-		allInvestments.add(newInvestment);
+		repo.saveInvestment(newInvestment);
 		user.addInvestment(newInvestment);
 
 	}
@@ -51,7 +47,12 @@ public class InvestmentHandler {
 		String salt = PasswordUtils.generateSalt();
 		String hashedpassword = PasswordUtils.hashPassword(password, salt);
 		User user = new User(username, hashedpassword, salt);
+		repo.saveUser(user);
 
+	}
+
+	public List<User> giveAllUsers() {
+		return repo.giveAllUsers();
 	}
 
 }

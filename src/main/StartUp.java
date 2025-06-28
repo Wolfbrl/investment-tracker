@@ -11,16 +11,13 @@ public class StartUp extends Application {
 
 	public static void main(String[] args) {
 
-//		InvestmentHandler investmenthandler = new InvestmentHandler();
-//
-//		new TestApplication(investmenthandler).runTest();
-		DatabaseInitializer.initialize();
 		launch(args);
 
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
+		DatabaseInitializer.initialize();
 
 		InvestmentHandler investmenthandler = new InvestmentHandler();
 		RegisterLoginScreen startscreen = new RegisterLoginScreen(investmenthandler);

@@ -7,7 +7,7 @@ public class DatabaseInitializer {
 	public static void initialize() {
 		try (Connection conn = Database.connect(); Statement stmt = conn.createStatement()) {
 			if (conn != null) {
-				System.out.println("Connectie succesvol!");
+				System.out.println("Connection succesfull!");
 			}
 
 			String createUserTable = """

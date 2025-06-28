@@ -11,6 +11,12 @@ public class RegisterLoginScreen extends GridPane {
 
 		this.investmenthandler = new InvestmentHandler();
 
+		build();
+
+	}
+
+	private void build() {
+
 	}
 
 }

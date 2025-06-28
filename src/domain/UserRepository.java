@@ -103,7 +103,8 @@ public class UserRepository {
 				BigDecimal currentValue = rs.getBigDecimal("currentValue");
 				String note = rs.getString("note");
 
-				User user = new User(username, "", ""); // enkel username nodig, rest later aanvullen indien nodig
+				User user = giveAllUsers().stream().filter(x -> x.getUsername().equals(username)).findFirst()
+						.orElse(null);
 
 				Investment investment = new Investment(id, name, startDate, initialValue, currentValue, currency, type,
 						user, note);
@@ -114,6 +115,11 @@ public class UserRepository {
 			e.printStackTrace();
 		}
 		return investments;
+	}
+
+	public void removeInvestment(Investment investment) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

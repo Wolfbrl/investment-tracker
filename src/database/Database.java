@@ -9,7 +9,7 @@ public class Database {
 		try {
 			return DriverManager.getConnection(url);
 		} catch (SQLException e) {
-			System.out.println("Connectie mislukt: " + e.getMessage());
+			System.out.println("Failed to connect: " + e.getMessage());
 			return null;
 		}
 	}
