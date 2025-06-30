@@ -22,7 +22,7 @@ public class StartUp extends Application {
 		InvestmentHandler investmenthandler = new InvestmentHandler();
 		RegisterLoginScreen startscreen = new RegisterLoginScreen(investmenthandler);
 
-		Scene scene = new Scene(startscreen, 800, 600);
+		Scene scene = new Scene(startscreen, 1000, 600);
 
 		primaryStage.setTitle("Investment Tracker");
 		primaryStage.setScene(scene);
