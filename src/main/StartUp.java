@@ -25,6 +25,7 @@ public class StartUp extends Application {
 		Scene scene = new Scene(startscreen, 1000, 600);
 
 		primaryStage.setTitle("Investment Tracker");
+		primaryStage.setResizable(false);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 

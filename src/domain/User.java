@@ -36,7 +36,14 @@ public class User implements Comparable<User> {
 	}
 
 	public void setUsername(String username) {
+		if (username == null || username.isBlank()) {
+			throw new IllegalArgumentException("Please fill in your username");
+		}
+		if (username.length() <= 4) {
+			throw new IllegalArgumentException("Your username must contain at least 5 characters");
+		}
 		this.username = username;
+
 	}
 
 	public String getPassword() {
@@ -44,6 +51,7 @@ public class User implements Comparable<User> {
 	}
 
 	public void setPassword(String password) {
+
 		this.password = password;
 	}
 

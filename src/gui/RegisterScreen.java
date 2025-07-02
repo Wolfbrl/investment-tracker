@@ -3,39 +3,36 @@ package gui;
 import domain.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import utils.PasswordUtils;
 
-public class RegisterLoginScreen extends SplitPane {
+public class RegisterScreen extends SplitPane {
 
-	private Button signInButton;
 	private Label alertText;
 
 	private InvestmentHandler investmenthandler;
 
-	public RegisterLoginScreen(InvestmentHandler investmenthandler) {
+	public RegisterScreen(InvestmentHandler investmenthandler) {
 		this.investmenthandler = investmenthandler;
 		build();
 	}
 
 	private void build() {
 
-		// FONTS
 		Font poppinstitle = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 24);
 		Font poppinslighttext = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Medium.ttf"), 10);
 		Font poppinslighttextbutton = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Medium.ttf"), 12);
 
 		this.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
 
-		// Linkerzijde
 		StackPane leftPane = new StackPane();
 		leftPane.setPrefSize(550, 600);
 		leftPane.setMinSize(550, 600);
 		leftPane.setMaxSize(550, 600);
 
-		Image leftimage = new Image(getClass().getResourceAsStream("/images/loginpicture.png"));
+		Image leftimage = new Image(getClass().getResourceAsStream("/images/welcomepicture.png"));
 		ImageView imageView = new ImageView(leftimage);
 		imageView.setPreserveRatio(false);
 		imageView.fitWidthProperty().bind(leftPane.widthProperty());
@@ -50,7 +47,7 @@ public class RegisterLoginScreen extends SplitPane {
 		formPane.setAlignment(Pos.CENTER_LEFT);
 		formPane.setPrefWidth(500);
 
-		Label title = new Label("Sign in or create an account");
+		Label title = new Label("Welcome!");
 
 		title.setFont(poppinstitle);
 
@@ -62,29 +59,54 @@ public class RegisterLoginScreen extends SplitPane {
 		Label passwordLabel = new Label("Password");
 		PasswordField passwordField = new PasswordField();
 
+		Label passwordLabelConfirm = new Label("Confirm password");
+		PasswordField passwordFieldConfirm = new PasswordField();
+
 		passwordLabel.setFont(poppinslighttext);
+		passwordLabelConfirm.setFont(poppinslighttext);
 
-		signInButton = new Button("Sign in");
+		Button registerButton = new Button("Register");
 
-		signInButton.setFont(poppinslighttextbutton);
+		registerButton.setFont(poppinslighttextbutton);
 
-		signInButton.setOnAction(e -> {
+		registerButton.setOnAction(e -> {
+
 			try {
+
+				if (emailField.getText().isBlank() || passwordField.getText().isBlank()
+						|| passwordFieldConfirm.getText().isBlank()) {
+					throw new IllegalArgumentException("Please fill in all the fields");
+				}
+
 				alertText.setText("");
 				User user = investmenthandler.giveAllUsers().stream()
 						.filter(x -> x.getUsername().equals(emailField.getText())).findFirst().orElse(null);
-				if (user == null) {
-					throw new IllegalArgumentException("User not found");
+
+				if (user != null) {
+					throw new IllegalArgumentException("Username already exists");
 				}
 
-				boolean passwordklopt = PasswordUtils.verifyPassword(passwordField.getText(), user.getPassword(),
-						user.getSalt());
-
-				if (!passwordklopt) {
-					throw new IllegalArgumentException("Incorrect password");
+				if (!passwordField.getText().equals(passwordFieldConfirm.getText())) {
+					throw new IllegalArgumentException("Confirmed password does not match your password");
 				}
 
-				alertText.setText(user.toString());
+				if (passwordField.getText().isBlank() || passwordField.getText().isEmpty()) {
+					throw new IllegalArgumentException("Your password can't be blank");
+				}
+
+				if (passwordField.getText().length() <= 7) {
+					throw new IllegalArgumentException("Your password length must be 8 characters or more");
+				}
+
+				investmenthandler.createUser(emailField.getText(), passwordField.getText());
+
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setHeaderText("User created");
+				alert.setContentText(String.format("User %s has successfully been created", emailField.getText()));
+				alert.show();
+				emailField.setText("");
+				passwordField.setText("");
+				passwordFieldConfirm.setText("");
 
 			} catch (IllegalArgumentException i) {
 				alertText.setText(i.getMessage());
@@ -92,26 +114,21 @@ public class RegisterLoginScreen extends SplitPane {
 
 		});
 
-		Label noAccountLabel = new Label("Don't have an account?");
-		Hyperlink signUpLink = new Hyperlink("Sign up");
+		Hyperlink backToLoginPage = new Hyperlink("Back to loginpage");
 
-		signUpLink.setOnAction(e -> {
+		backToLoginPage.setOnAction(e -> {
 
-			this.getScene().setRoot(new RegisterScreen(this.investmenthandler));
+			this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler));
 
 		});
 
-		noAccountLabel.setFont(poppinslighttextbutton);
-		signUpLink.setFont(poppinslighttextbutton);
-
-		HBox signUpRow = new HBox(5, noAccountLabel, signUpLink);
-		signUpRow.setAlignment(Pos.CENTER_LEFT);
+		backToLoginPage.setFont(poppinslighttextbutton);
 
 		alertText = new Label("");
 		alertText.setStyle("-fx-text-fill: red;");
 
-		formPane.getChildren().addAll(title, usernamelabel, emailField, passwordLabel, passwordField, signInButton,
-				alertText, signUpRow);
+		formPane.getChildren().addAll(title, usernamelabel, emailField, passwordLabel, passwordField,
+				passwordLabelConfirm, passwordFieldConfirm, registerButton, alertText, backToLoginPage);
 
 		this.getItems().addAll(leftPane, formPane);
 
@@ -120,4 +137,5 @@ public class RegisterLoginScreen extends SplitPane {
 		this.setPadding(Insets.EMPTY); // !
 
 	}
+
 }
