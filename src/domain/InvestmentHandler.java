@@ -17,9 +17,8 @@ public class InvestmentHandler {
 
 	public void removeInvestment(String id) {
 		Investment investment = getInvestmentById(id);
-		User user = investment.getUser();
 		repo.removeInvestment(investment);
-		user.removeInvestment(investment);
+
 	}
 
 	public Investment getInvestmentById(String id) {
@@ -39,7 +38,6 @@ public class InvestmentHandler {
 		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
 				investmentType, user, note);
 		repo.saveInvestment(newInvestment);
-		user.addInvestment(newInvestment);
 
 	}
 
@@ -53,6 +51,10 @@ public class InvestmentHandler {
 
 	public List<User> giveAllUsers() {
 		return repo.giveAllUsers();
+	}
+
+	public boolean doesUserExist(String username) {
+		return repo.doesUserExist(username);
 	}
 
 }

@@ -14,12 +14,11 @@ public class UserRepository {
 	// 1. Sla één user op
 	public void saveUser(User user) {
 		try (Connection conn = Database.connect()) {
-			String sql = "INSERT INTO user (username, pwd, salt, numberofinvestments) VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO user (username, pwd, salt) VALUES (?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, user.getUsername());
 			ps.setString(2, user.getPassword());
 			ps.setString(3, user.getSalt());
-			ps.setInt(4, user.getNumberOfInvestments());
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -64,7 +63,7 @@ public class UserRepository {
 	public List<User> giveAllUsers() {
 		List<User> users = new ArrayList<>();
 
-		String sql = "SELECT username, pwd, salt, numberofinvestments FROM user";
+		String sql = "SELECT username, pwd, salt FROM user";
 
 		try (Connection conn = Database.connect();
 				PreparedStatement ps = conn.prepareStatement(sql);
@@ -120,6 +119,22 @@ public class UserRepository {
 	public void removeInvestment(Investment investment) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public boolean doesUserExist(String username) {
+		String sql = "SELECT 1 FROM user WHERE username = ?";
+
+		try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setString(1, username);
+			ResultSet rs = ps.executeQuery();
+
+			return rs.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

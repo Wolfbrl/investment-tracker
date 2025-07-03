@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import utils.PasswordUtils;
 
 public class RegisterLoginScreen extends SplitPane {
@@ -15,8 +16,11 @@ public class RegisterLoginScreen extends SplitPane {
 
 	private InvestmentHandler investmenthandler;
 
-	public RegisterLoginScreen(InvestmentHandler investmenthandler) {
+	private Stage primaryStage;
+
+	public RegisterLoginScreen(InvestmentHandler investmenthandler, Stage primaryStage) {
 		this.investmenthandler = investmenthandler;
+		this.primaryStage = primaryStage;
 		build();
 	}
 
@@ -84,7 +88,7 @@ public class RegisterLoginScreen extends SplitPane {
 					throw new IllegalArgumentException("Incorrect password");
 				}
 
-				alertText.setText(user.toString());
+				this.getScene().setRoot(new MainDashboard(this.investmenthandler, this.primaryStage, user));
 
 			} catch (IllegalArgumentException i) {
 				alertText.setText(i.getMessage());
@@ -97,7 +101,7 @@ public class RegisterLoginScreen extends SplitPane {
 
 		signUpLink.setOnAction(e -> {
 
-			this.getScene().setRoot(new RegisterScreen(this.investmenthandler));
+			this.getScene().setRoot(new RegisterScreen(this.investmenthandler, this.primaryStage));
 
 		});
 

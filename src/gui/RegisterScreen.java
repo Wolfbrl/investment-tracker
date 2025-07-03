@@ -7,15 +7,18 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 public class RegisterScreen extends SplitPane {
 
 	private Label alertText;
 
 	private InvestmentHandler investmenthandler;
+	private Stage primaryStage;
 
-	public RegisterScreen(InvestmentHandler investmenthandler) {
+	public RegisterScreen(InvestmentHandler investmenthandler, Stage primaryStage) {
 		this.investmenthandler = investmenthandler;
+		this.primaryStage = primaryStage;
 		build();
 	}
 
@@ -108,6 +111,8 @@ public class RegisterScreen extends SplitPane {
 				passwordField.setText("");
 				passwordFieldConfirm.setText("");
 
+				this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler, this.primaryStage));
+
 			} catch (IllegalArgumentException i) {
 				alertText.setText(i.getMessage());
 			}
@@ -118,7 +123,7 @@ public class RegisterScreen extends SplitPane {
 
 		backToLoginPage.setOnAction(e -> {
 
-			this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler));
+			this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler, this.primaryStage));
 
 		});
 

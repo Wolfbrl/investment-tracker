@@ -1,34 +1,20 @@
 package domain;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Objects;
 
 public class User implements Comparable<User> {
 
-	private List<Investment> investments;
 	private String username;
 //	private String email;
 	private String password;
 	private String salt;
 
 	public User(String username, String password, String salt) {
-		investments = new ArrayList<>();
+
 		setUsername(username);
 		setPassword(password);
 		this.salt = salt;
 
-	}
-
-	public List<Investment> getInvestments() {
-		return investments;
-	}
-
-	public int getNumberOfInvestments() {
-		return investments.size();
-	}
-
-	public void setInvestments(List<Investment> investments) {
-		this.investments = investments;
 	}
 
 	public String getUsername() {
@@ -57,20 +43,7 @@ public class User implements Comparable<User> {
 
 	@Override
 	public String toString() {
-		return String.format("User %s with password %s and salt %s has made %d investments", this.username,
-				this.password, this.salt, this.investments.size());
-	}
-
-	public void addInvestment(Investment investment) {
-		investments.add(investment);
-	}
-
-	public void removeInvestment(Investment investment) {
-		investments.remove(investment);
-	}
-
-	public BigDecimal getTotalProfitOrLoss() {
-		return investments.stream().map(x -> x.getProfitOrLoss()).reduce(BigDecimal.ZERO, BigDecimal::add);
+		return String.format("User %s with password %s and salt %s", this.username, this.password, this.salt);
 	}
 
 	@Override
