@@ -1,8 +1,9 @@
 package domain;
 
-import java.math.BigDecimal;
+import java.math.*;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import enums.*;
 
@@ -17,10 +18,12 @@ public class Investment implements Comparable<Investment> {
 	private final String id;
 	private BigDecimal initialValue;
 	private BigDecimal currentValue;
-	private User user;
+	private String user;
+
+	private List<ValuePoint> valueHistory;
 
 	public Investment(String id, String name, LocalDate startDate, BigDecimal initialValue, BigDecimal currentValue,
-			Currencies currency, InvestmentType type, User user, String note) {
+			Currencies currency, InvestmentType type, String user, String note) {
 		this.id = id;
 		setName(name);
 		setStartDate(startDate);
@@ -35,11 +38,11 @@ public class Investment implements Comparable<Investment> {
 
 	}
 
-	public User getUser() {
+	public String getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(String user) {
 		this.user = user;
 	}
 
@@ -108,8 +111,8 @@ public class Investment implements Comparable<Investment> {
 
 	@Override
 	public String toString() {
-		return String.format("[%s] %s %s %s - %s (%s), Initial: %s, Current: %s", id, user.getUsername(), startDate,
-				name, currency, type, initialValue, currentValue);
+		return String.format("[%s] %s %s %s - %s (%s), Initial: %s, Current: %s", id, user, startDate, name, currency,
+				type, initialValue, currentValue);
 	}
 
 	@Override
@@ -146,6 +149,31 @@ public class Investment implements Comparable<Investment> {
 
 	public void updateCurrentValueUsingAmount(BigDecimal amount) {
 		this.currentValue = this.currentValue.add(amount);
+	}
+
+	public List<ValuePoint> getSimulatedHistory() {
+		List<ValuePoint> result = new ArrayList<>();
+		LocalDate today = LocalDate.now();
+		LocalDate start = getStartDate();
+		long days = ChronoUnit.DAYS.between(start, today);
+
+		// Als start en today gelijk zijn, voeg enkel 1 punt toe
+		if (days <= 0) {
+			result.add(new ValuePoint(start, currentValue)); // of initialValue
+			return result;
+		}
+
+		// Normaal verloop
+		BigDecimal delta = getProfitOrLoss().divide(BigDecimal.valueOf(days), RoundingMode.HALF_UP);
+		BigDecimal value = getInitialValue();
+
+		for (int i = 0; i <= days; i++) {
+			LocalDate date = start.plusDays(i);
+			result.add(new ValuePoint(date, value));
+			value = value.add(delta);
+		}
+
+		return result;
 	}
 
 }

@@ -31,7 +31,7 @@ public class UserRepository {
 			String sql = "INSERT INTO investment (id, user, name, startDate, type, currency, initialValue, currentValue, profitLoss, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, investment.getId());
-			ps.setString(2, investment.getUser().getUsername());
+			ps.setString(2, investment.getUser());
 			ps.setString(3, investment.getName());
 			ps.setString(4, investment.getStartDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
 			ps.setString(5, investment.getType().name());
@@ -106,7 +106,7 @@ public class UserRepository {
 						.orElse(null);
 
 				Investment investment = new Investment(id, name, startDate, initialValue, currentValue, currency, type,
-						user, note);
+						user.getUsername(), note);
 				investments.add(investment);
 			}
 
@@ -127,6 +127,22 @@ public class UserRepository {
 		try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
 			ps.setString(1, username);
+			ResultSet rs = ps.executeQuery();
+
+			return rs.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean doesInvestmentExist(String invID) {
+		String sql = "SELECT 1 FROM investment WHERE id = ?";
+
+		try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setString(1, invID);
 			ResultSet rs = ps.executeQuery();
 
 			return rs.next();

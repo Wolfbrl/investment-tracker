@@ -34,7 +34,7 @@ public class InvestmentHandler {
 	}
 
 	public void addInvestment(String id, String name, LocalDate startDate, BigDecimal initialValue,
-			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, User user, String note) {
+			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, String user, String note) {
 		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
 				investmentType, user, note);
 		repo.saveInvestment(newInvestment);
@@ -55,6 +55,10 @@ public class InvestmentHandler {
 
 	public boolean doesUserExist(String username) {
 		return repo.doesUserExist(username);
+	}
+
+	public boolean doesInvestmentExist(String investmentID) {
+		return repo.doesInvestmentExist(investmentID);
 	}
 
 }

@@ -2,7 +2,7 @@ package main;
 
 import database.DatabaseInitializer;
 import domain.InvestmentHandler;
-import gui.MainDashboard;
+import gui.RegisterLoginScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -20,17 +20,15 @@ public class StartUp extends Application {
 		DatabaseInitializer.initialize();
 
 		InvestmentHandler investmenthandler = new InvestmentHandler();
-//		RegisterLoginScreen startscreen = new RegisterLoginScreen(investmenthandler);
-//
-//		Scene scene = new Scene(startscreen, 1000, 600);
 
-		if (!investmenthandler.doesUserExist("Wolfbrl")) {
-			investmenthandler.createUser("Wolfbrl", "gizmofret2604");
-		}
-		MainDashboard dashboard = new MainDashboard(investmenthandler, primaryStage,
-				investmenthandler.giveAllUsers().get(0));
-		Scene scene = new Scene(dashboard);
-		primaryStage.setMaximized(true);
+		RegisterLoginScreen startscreen = new RegisterLoginScreen(investmenthandler, primaryStage);
+
+		Scene scene = new Scene(startscreen, 1000, 600);
+//
+//		MainDashboard dashboard = new MainDashboard(investmenthandler, primaryStage,
+//				investmenthandler.giveAllUsers().get(0));
+//		Scene scene = new Scene(dashboard);
+//		primaryStage.setMaximized(true);
 
 		primaryStage.setTitle("Investment Tracker");
 		primaryStage.setResizable(false);
