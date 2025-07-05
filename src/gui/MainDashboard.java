@@ -28,14 +28,21 @@ public class MainDashboard extends BorderPane {
 	}
 
 	private void build() {
-		// Menu bovenaan
+
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("Menu");
-		menu.getItems().addAll(new MenuItem("Dashboard"), new MenuItem("News"), new MenuItem("Settings"),
-				new MenuItem("Sign out"));
+		MenuItem dashboard = new MenuItem("Dashboard");
+		MenuItem news = new MenuItem("News");
+		MenuItem settings = new MenuItem("Settings");
+		MenuItem signout = new MenuItem("Sign out");
+		signout.setOnAction(e -> {
+			this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler, this.primaryStage));
+		});
+		dashboard.setDisable(true);
+		menu.getItems().addAll(dashboard, news, settings, signout);
+
 		menuBar.getMenus().add(menu);
 
-		// Totale waarde label
 		BigDecimal totalValue = investmenthandler.giveAllInvestments().stream()
 				.filter(inv -> inv.getUser().equals(user.getUsername())).map(Investment::getCurrentValue)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -44,7 +51,6 @@ public class MainDashboard extends BorderPane {
 		title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 		title.setPadding(new Insets(10, 0, 0, 290));
 
-		// Titel en menubalk samen in VBox, dan in setTop
 		VBox topBox = new VBox(menuBar, title);
 		this.setTop(topBox);
 
@@ -53,7 +59,7 @@ public class MainDashboard extends BorderPane {
 		TableView<Investment> table = buildInvestmentTable();
 
 		chart.setPrefSize(400, 250);
-		table.setPrefSize(400, 250);
+		table.setPrefSize(400, 300);
 
 		GridPane grid = new GridPane();
 		grid.setPadding(new Insets(20));
@@ -82,9 +88,12 @@ public class MainDashboard extends BorderPane {
 		tableBox.setPadding(new Insets(0, 0, 35, 0));
 		grid.add(tableBox, 1, 0);
 
-		grid.setTranslateY(-40); // 👈 schuif de hele grid iets omhoog
+		grid.setTranslateY(-40);
 
 		this.setCenter(grid);
+
+		// quick actions
+
 	}
 
 	private TableView<Investment> buildInvestmentTable() {
