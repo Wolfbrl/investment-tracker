@@ -5,6 +5,7 @@ module investmenttracker {
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires javafx.base;
+	requires com.google.gson;
 
 	exports main;
 	exports domain;

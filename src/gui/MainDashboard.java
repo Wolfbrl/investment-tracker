@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import apis.MarketAuxApiFetcher;
 import domain.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.*;
@@ -93,6 +94,14 @@ public class MainDashboard extends BorderPane {
 		this.setCenter(grid);
 
 		// quick actions
+
+		List<String> lijst = new ArrayList<>();
+		lijst.add("AAPL");
+		lijst.add("BTC");
+		lijst.add("ETH");
+		lijst.add(".INX");
+
+		System.out.println(MarketAuxApiFetcher.request(lijst));
 
 	}
 
