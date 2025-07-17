@@ -9,7 +9,7 @@ import domain.NewsResponse;
 
 public class MarketAuxApiFetcher {
 
-	private static final String apiToken = "FwBLXf749FClyD5X8oObXww6UjDhxxf6vM3SmQEc";
+	private static final String apiToken = "fill in api token here";
 	private static final Gson gson = new Gson();
 
 	public static NewsResponse request(String symbol) {
