@@ -24,6 +24,10 @@ public class StartUp extends Application {
 //		RegisterLoginScreen startscreen = new RegisterLoginScreen(investmenthandler, primaryStage);
 //
 //		Scene scene = new Scene(startscreen, 1000, 600);
+
+//		UserRepository
+//				.saveInvestment(new Investment("testinvestment", "TSLA", LocalDate.now(), BigDecimal.valueOf(1000.00),
+//						BigDecimal.valueOf(2000.00), Currencies.EUR, InvestmentType.STOCK, "Wolfbrl", "test"));
 //
 		MainDashboard dashboard = new MainDashboard(investmenthandler, primaryStage,
 				investmenthandler.giveAllUsers().get(0));

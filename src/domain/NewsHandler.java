@@ -1,12 +1,13 @@
 package domain;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import apis.MarketAuxApiFetcher;
 
 public class NewsHandler {
 
-	public static List<String> requestNews(List<String> symbols) {
+	public static List<Map<String, String>> requestNews(List<String> symbols) {
 
 //		private String title;
 //		private String description;
@@ -18,26 +19,26 @@ public class NewsHandler {
 //		private String source;
 //		private List<Entity> entities;
 
-		List<String> responselijst = new ArrayList<>();
+		List<Map<String, String>> responsemaplijst = new ArrayList<>();
 
-		NewsResponse response = MarketAuxApiFetcher.request(symbols);
+		for (int i = 0; i < symbols.size(); i++) {
+			NewsResponse response = MarketAuxApiFetcher.request(symbols.get(i));
 
-		if (response == null || response.getData() == null) {
-			responselijst.add("No news available");
-			return responselijst;
+			for (NewsArticle article : response.getData()) {
+				Map<String, String> responsemap = new HashMap<>();
+				responsemap.put("Title", article.getTitle());
+				responsemap.put("Description", article.getDescription());
+				responsemap.put("Source", article.getSource());
+				responsemap.put("Date", article.getPublished_at());
+				responsemap.put("URL", article.getUrl());
+				responsemap.put("Image_URL", article.getImage_url());
+				responsemap.put("Symbols",
+						article.getEntities().stream().map(x -> x.getSymbol()).collect(Collectors.joining("-")));
+				responsemaplijst.add(responsemap);
+			}
 		}
 
-		for (NewsArticle article : response.getData()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Title: ").append(article.getTitle()).append("\n");
-			sb.append("Description: ").append(article.getDescription()).append("\n");
-			sb.append("Source: ").append(article.getSource()).append("\n");
-			sb.append("Date: ").append(article.getPublished_at()).append("\n");
-			sb.append("URL: ").append(article.getUrl()).append("\n");
-			sb.append("Image_URL: ").append(article.getImage_url()).append("\n");
-			sb.append("----------------------------------");
-			responselijst.add(sb.toString());
-		}
+		return responsemaplijst;
 
 	}
 

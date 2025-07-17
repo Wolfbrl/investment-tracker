@@ -7,6 +7,8 @@ module investmenttracker {
 	requires javafx.base;
 	requires com.google.gson;
 
+	opens domain to com.google.gson;
+
 	exports main;
 	exports domain;
 	exports enums;

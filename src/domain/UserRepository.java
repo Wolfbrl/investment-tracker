@@ -26,7 +26,7 @@ public class UserRepository {
 	}
 
 	// 2. Sla één investment op
-	public void saveInvestment(Investment investment) {
+	public static void saveInvestment(Investment investment) {
 		try (Connection conn = Database.connect()) {
 			String sql = "INSERT INTO investment (id, user, name, startDate, type, currency, initialValue, currentValue, profitLoss, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);

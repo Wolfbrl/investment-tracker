@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import apis.MarketAuxApiFetcher;
 import domain.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.*;
@@ -95,14 +95,34 @@ public class MainDashboard extends BorderPane {
 
 		// quick actions
 
-		List<String> lijst = new ArrayList<>();
-		lijst.add("AAPL");
-		lijst.add("BTC");
-		lijst.add("ETH");
-		lijst.add(".INX");
+		VBox newsbox = displayNewsArticles();
+		newsbox.setAlignment(Pos.TOP_LEFT);
+		GridPane.setMargin(newsbox, new Insets(0, 0, 0, +20)); // schuif een beetje naar links
+		grid.add(newsbox, 0, 1);
 
-		System.out.println(MarketAuxApiFetcher.request(lijst));
+	}
 
+	private VBox displayNewsArticles() {
+
+		List<Investment> userInvestments = investmenthandler.giveAllInvestments().stream()
+				.filter(inv -> inv.getUser().equals(user.getUsername())).toList();
+
+		List<String> symbols = userInvestments.stream()
+				.sorted(Comparator.comparing(Investment::getCurrentValue).reversed()).map(Investment::getName)
+				.distinct().collect(Collectors.toList());
+
+		List<Map<String, String>> lijstje = NewsHandler.requestNews(symbols);
+
+		VBox newsbox = new VBox(10);
+		newsbox.setPadding(new Insets(10));
+
+		for (Map<String, String> map : lijstje) {
+			Hyperlink newsurl = new Hyperlink(map.get("Title"));
+			newsurl.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+			newsbox.getChildren().add(newsurl);
+		}
+
+		return newsbox;
 	}
 
 	private TableView<Investment> buildInvestmentTable() {
