@@ -8,6 +8,7 @@ module investmenttracker {
 	requires com.google.gson;
 	requires java.desktop;
 	requires javafx.swing;
+	requires io.github.cdimascio.dotenv.java;
 
 	opens domain to com.google.gson;
 

@@ -12,13 +12,16 @@ bin/
 *.iml
 out/
 
-# VS Code
+# VSCode
 .vscode/
 
-# OS-bestanden
+# OS-files
 .DS_Store
 Thumbs.db
 
 # ignore local SQLite database
 data/investment_tracker.db
+
+#environment variables
+.env
 

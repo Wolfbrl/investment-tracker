@@ -6,13 +6,16 @@ import java.net.*;
 import com.google.gson.Gson;
 
 import domain.NewsResponse;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class MarketAuxApiFetcher {
 
-	private static final String apiToken1 = "hide";
-	private static final String apiToken2 = "hide";
-	private static final String apiToken3 = "hide";
-	private static final String apiToken4 = "hide";
+	static Dotenv dotenv = Dotenv.load();
+
+	private static final String apiToken1 = dotenv.get("MARKETAUX_API_TOKEN_1");
+	private static final String apiToken2 = dotenv.get("MARKETAUX_API_TOKEN_2");
+	private static final String apiToken3 = dotenv.get("MARKETAUX_API_TOKEN_3");
+	private static final String apiToken4 = dotenv.get("MARKETAUX_API_TOKEN_4");
 
 	private static final Gson gson = new Gson();
 
