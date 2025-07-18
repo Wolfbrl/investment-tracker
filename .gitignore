@@ -22,6 +22,5 @@ Thumbs.db
 # ignore local SQLite database
 data/investment_tracker.db
 
-#environment variables
-.env
+
 
