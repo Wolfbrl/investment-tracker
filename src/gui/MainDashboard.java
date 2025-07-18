@@ -96,8 +96,7 @@ public class MainDashboard extends BorderPane {
 		// quick actions
 
 		VBox newsbox = displayNewsArticles();
-		newsbox.setAlignment(Pos.TOP_LEFT);
-		GridPane.setMargin(newsbox, new Insets(0, 0, 0, +20)); // schuif een beetje naar links
+
 		grid.add(newsbox, 0, 1);
 
 	}
@@ -116,11 +115,20 @@ public class MainDashboard extends BorderPane {
 		VBox newsbox = new VBox(10);
 		newsbox.setPadding(new Insets(10));
 
+		Label newsboxlabel = new Label("Relevant News Articles Regarding Your Holdings");
+		newsboxlabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 4;");
+
+		newsbox.getChildren().add(newsboxlabel);
+
 		for (Map<String, String> map : lijstje) {
-			Hyperlink newsurl = new Hyperlink(map.get("Title"));
-			newsurl.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+			Hyperlink newsurl = new Hyperlink(String.format("%s | %s", map.get("Symbols"), map.get("Title")));
+
+			newsurl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 			newsbox.getChildren().add(newsurl);
+
 		}
+		newsbox.setAlignment(Pos.TOP_LEFT);
+		GridPane.setMargin(newsbox, new Insets(0, 0, 0, +20));
 
 		return newsbox;
 	}

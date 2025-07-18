@@ -26,9 +26,9 @@ public class StartUp extends Application {
 //		Scene scene = new Scene(startscreen, 1000, 600);
 
 //		UserRepository
-//				.saveInvestment(new Investment("testinvestment", "TSLA", LocalDate.now(), BigDecimal.valueOf(1000.00),
-//						BigDecimal.valueOf(2000.00), Currencies.EUR, InvestmentType.STOCK, "Wolfbrl", "test"));
-//
+//				.saveInvestment(new Investment("testinvestment2", "BTC", LocalDate.now(), BigDecimal.valueOf(1230),
+//						BigDecimal.valueOf(750), Currencies.EUR, InvestmentType.Crypto, "Wolfbrl", "btc investment"));
+
 		MainDashboard dashboard = new MainDashboard(investmenthandler, primaryStage,
 				investmenthandler.giveAllUsers().get(0));
 		Scene scene = new Scene(dashboard);

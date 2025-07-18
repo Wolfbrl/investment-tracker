@@ -24,17 +24,21 @@ public class NewsHandler {
 		for (int i = 0; i < symbols.size(); i++) {
 			NewsResponse response = MarketAuxApiFetcher.request(symbols.get(i));
 
+			int numberofarticels = 0;
 			for (NewsArticle article : response.getData()) {
-				Map<String, String> responsemap = new HashMap<>();
-				responsemap.put("Title", article.getTitle());
-				responsemap.put("Description", article.getDescription());
-				responsemap.put("Source", article.getSource());
-				responsemap.put("Date", article.getPublished_at());
-				responsemap.put("URL", article.getUrl());
-				responsemap.put("Image_URL", article.getImage_url());
-				responsemap.put("Symbols",
-						article.getEntities().stream().map(x -> x.getSymbol()).collect(Collectors.joining("-")));
-				responsemaplijst.add(responsemap);
+				numberofarticels++;
+				if (numberofarticels <= 2) {
+					Map<String, String> responsemap = new HashMap<>();
+					responsemap.put("Title", article.getTitle());
+					responsemap.put("Description", article.getDescription());
+					responsemap.put("Source", article.getSource());
+					responsemap.put("Date", article.getPublished_at());
+					responsemap.put("URL", article.getUrl());
+					responsemap.put("Image_URL", article.getImage_url());
+					responsemap.put("Symbols",
+							article.getEntities().stream().map(x -> x.getSymbol()).collect(Collectors.joining("-")));
+					responsemaplijst.add(responsemap);
+				}
 			}
 		}
 
