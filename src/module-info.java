@@ -7,6 +7,7 @@ module investmenttracker {
 	requires javafx.base;
 	requires com.google.gson;
 	requires java.desktop;
+	requires javafx.swing;
 
 	opens domain to com.google.gson;
 

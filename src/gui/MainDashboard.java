@@ -1,17 +1,23 @@
 package gui;
 
 import java.awt.Desktop;
+import java.awt.image.RenderedImage;
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 import domain.*;
 import javafx.collections.*;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -130,9 +136,52 @@ public class MainDashboard extends BorderPane {
 		newsandquickactionsbox.getChildren().add(quickactions);
 
 		HBox quickactionsbuttonsbox = new HBox();
+		quickactionsbuttonsbox.setSpacing(10);
 
-		Button addInvestment = new Button("Make a new investment");
-		Button removeInvestment = new Button("Sell an investment");
+		Button addInvestment = new Button("Add a new investment");
+		Button screenshotPortfolio = new Button("Save your portfolio as a screenshot");
+
+		screenshotPortfolio.setOnAction(e -> {
+
+			try {
+
+				WritableImage snapshot = primaryStage.getScene().snapshot(null);
+
+				int cropX = 0;
+				int cropY = 25;
+				int cropWidth = (int) snapshot.getWidth();
+
+				int cropHeight = 375;
+
+				PixelReader reader = snapshot.getPixelReader();
+
+				WritableImage croppedSnapshot = new WritableImage(reader, cropX, cropY, cropWidth, cropHeight);
+
+				String userHome = System.getProperty("user.home");
+
+				File downloadFolder = new File(userHome, "Downloads");
+
+				File file = new File(downloadFolder, "portfolio.png");
+
+				RenderedImage renderedImage = SwingFXUtils.fromFXImage(croppedSnapshot, null);
+
+				boolean success = ImageIO.write(renderedImage, "png", file);
+
+				if (success) {
+					System.out.println(String.format("Screenshot saved to: %s", file.getAbsolutePath()));
+				}
+
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+
+		});
+
+		Button exportPortfolio = new Button("Export your portfolio as a CSV file (Excel)");
+
+		quickactionsbuttonsbox.getChildren().addAll(addInvestment, screenshotPortfolio, exportPortfolio);
+
+		newsandquickactionsbox.getChildren().add(quickactionsbuttonsbox);
 
 	}
 
@@ -156,6 +205,7 @@ public class MainDashboard extends BorderPane {
 		newsbox.getChildren().add(newsboxlabel);
 
 		for (Map<String, String> map : lijstje) {
+
 			Hyperlink newsurl = new Hyperlink(String.format("%s | %s", map.get("Symbols"), map.get("Title")));
 
 			newsurl.setOnAction(e -> {
@@ -265,4 +315,5 @@ public class MainDashboard extends BorderPane {
 		lineChart.getData().add(series);
 		return lineChart;
 	}
+
 }
