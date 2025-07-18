@@ -7,7 +7,7 @@ import apis.MarketAuxApiFetcher;
 
 public class NewsHandler {
 
-	public static List<Map<String, String>> requestNews(List<String> symbols) {
+	public static List<Map<String, String>> requestNews(List<String> symbols, int maxNrOfSymbols) {
 
 //		private String title;
 //		private String description;
@@ -21,7 +21,7 @@ public class NewsHandler {
 
 		List<Map<String, String>> responsemaplijst = new ArrayList<>();
 
-		for (int i = 0; i < symbols.size(); i++) {
+		for (int i = 0; i < Math.min(maxNrOfSymbols, symbols.size()); i++) {
 			NewsResponse response = MarketAuxApiFetcher.request(symbols.get(i));
 
 			int numberofarticels = 0;

@@ -117,7 +117,14 @@ public class UserRepository {
 	}
 
 	public void removeInvestment(Investment investment) {
-		// TODO Auto-generated method stub
+		String sql = "DELETE from investment WHERE id = ?";
+
+		try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, investment.getId());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 

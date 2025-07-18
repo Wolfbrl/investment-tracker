@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Desktop;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -7,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import domain.*;
-import javafx.collections.FXCollections;
+import javafx.collections.*;
 import javafx.geometry.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
@@ -19,6 +20,7 @@ public class MainDashboard extends BorderPane {
 	private final InvestmentHandler investmenthandler;
 	private final Stage primaryStage;
 	private final User user;
+	private final ObservableList<Investment> investmentObservableList = FXCollections.observableArrayList();
 
 	public MainDashboard(InvestmentHandler investmenthandler, Stage primaryStage, User user) {
 		this.primaryStage = primaryStage;
@@ -85,8 +87,31 @@ public class MainDashboard extends BorderPane {
 		grid.add(chartPane, 0, 0);
 
 		VBox tableBox = new VBox(table);
-		tableBox.setAlignment(Pos.BOTTOM_CENTER);
+		tableBox.setAlignment(Pos.BOTTOM_LEFT);
+		tableBox.setPadding(new Insets(0, 0, 35, 10)); // extra ruimte links
 		tableBox.setPadding(new Insets(0, 0, 35, 0));
+
+		Button sellInvestmentButton = new Button("Remove selected investment");
+		sellInvestmentButton.setDisable(true);
+
+		table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+			sellInvestmentButton.setDisable(newSelection == null);
+		});
+
+		sellInvestmentButton.setOnAction(e -> {
+			Investment selectedInvestment = table.getSelectionModel().getSelectedItem();
+			if (selectedInvestment != null && investmenthandler.doesInvestmentExist(selectedInvestment.getId())) {
+				investmenthandler.removeInvestment(selectedInvestment.getId());
+
+				// Verwijder uit de ObservableList, zodat de tabel update
+				investmentObservableList.remove(selectedInvestment);
+			}
+		});
+
+		VBox.setMargin(sellInvestmentButton, new Insets(10, 0, 0, 0)); // 20 px ruimte boven de button
+
+		tableBox.getChildren().add(sellInvestmentButton);
+
 		grid.add(tableBox, 1, 0);
 
 		grid.setTranslateY(-40);
@@ -95,9 +120,19 @@ public class MainDashboard extends BorderPane {
 
 		// quick actions
 
-		VBox newsbox = displayNewsArticles();
+		VBox newsandquickactionsbox = displayNewsArticles();
 
-		grid.add(newsbox, 0, 1);
+		grid.add(newsandquickactionsbox, 0, 1);
+
+		Label quickactions = new Label("Quick Actions");
+		quickactions.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 4;");
+
+		newsandquickactionsbox.getChildren().add(quickactions);
+
+		HBox quickactionsbuttonsbox = new HBox();
+
+		Button addInvestment = new Button("Make a new investment");
+		Button removeInvestment = new Button("Sell an investment");
 
 	}
 
@@ -110,7 +145,7 @@ public class MainDashboard extends BorderPane {
 				.sorted(Comparator.comparing(Investment::getCurrentValue).reversed()).map(Investment::getName)
 				.distinct().collect(Collectors.toList());
 
-		List<Map<String, String>> lijstje = NewsHandler.requestNews(symbols);
+		List<Map<String, String>> lijstje = NewsHandler.requestNews(symbols, 3);
 
 		VBox newsbox = new VBox(10);
 		newsbox.setPadding(new Insets(10));
@@ -122,6 +157,17 @@ public class MainDashboard extends BorderPane {
 
 		for (Map<String, String> map : lijstje) {
 			Hyperlink newsurl = new Hyperlink(String.format("%s | %s", map.get("Symbols"), map.get("Title")));
+
+			newsurl.setOnAction(e -> {
+				try {
+					Desktop desktop = Desktop.getDesktop();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+						desktop.browse(java.net.URI.create(map.get("URL")));
+					}
+				} catch (Exception ex) {
+					System.out.println(ex.getMessage());
+				}
+			});
 
 			newsurl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 			newsbox.getChildren().add(newsurl);
@@ -136,9 +182,10 @@ public class MainDashboard extends BorderPane {
 	private TableView<Investment> buildInvestmentTable() {
 		TableView<Investment> table = new TableView<>();
 
-		List<Investment> userInvestments = investmenthandler.giveAllInvestments().stream()
-				.filter(inv -> inv.getUser().equals(user.getUsername())).toList();
-		table.getItems().addAll(userInvestments);
+		investmentObservableList.setAll(investmenthandler.giveAllInvestments().stream()
+				.filter(inv -> inv.getUser().equals(user.getUsername())).toList());
+
+		table.setItems(investmentObservableList);
 
 		TableColumn<Investment, String> nameCol = new TableColumn<>("Name");
 		nameCol.setCellValueFactory(
@@ -168,6 +215,7 @@ public class MainDashboard extends BorderPane {
 		});
 
 		table.getColumns().addAll(nameCol, dateCol, typeCol, initialvalueCol, currentvalueCol, pnlCol);
+
 		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 		return table;

@@ -37,7 +37,7 @@ public class InvestmentHandler {
 			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, String user, String note) {
 		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
 				investmentType, user, note);
-		repo.saveInvestment(newInvestment);
+		UserRepository.saveInvestment(newInvestment);
 
 	}
 

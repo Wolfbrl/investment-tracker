@@ -9,7 +9,9 @@ import domain.NewsResponse;
 
 public class MarketAuxApiFetcher {
 
-	private static final String apiToken = "insert api key here";
+	private static final String apiToken1 = "insert api key 1 here";
+	private static final String apiToken2 = "insert api key 2 here";
+
 	private static final Gson gson = new Gson();
 
 	public static NewsResponse request(String symbol) {
@@ -17,7 +19,7 @@ public class MarketAuxApiFetcher {
 		try {
 
 			String urlString = "https://api.marketaux.com/v1/news/all?symbols=" + symbol
-					+ "&filter_entities=true&language=en&sort_by=published_desc" + "&api_token=" + apiToken;
+					+ "&filter_entities=true&language=en&sort_by=published_desc" + "&api_token=" + apiToken2;
 
 			URL url = new URL(urlString);
 
