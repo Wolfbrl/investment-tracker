@@ -15,6 +15,7 @@ import domain.*;
 import javafx.collections.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.*;
+import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
@@ -27,6 +28,10 @@ public class MainDashboard extends BorderPane {
 	private final Stage primaryStage;
 	private final User user;
 	private final ObservableList<Investment> investmentObservableList = FXCollections.observableArrayList();
+
+	private TableView<Investment> table;
+	private LineChart<String, Number> chart;
+	Label title;
 
 	public MainDashboard(InvestmentHandler investmenthandler, Stage primaryStage, User user) {
 		this.primaryStage = primaryStage;
@@ -56,7 +61,7 @@ public class MainDashboard extends BorderPane {
 				.filter(inv -> inv.getUser().equals(user.getUsername())).map(Investment::getCurrentValue)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		Label title = new Label(String.format(" Total portfolio value: €%.2f", totalValue));
+		title = new Label(String.format(" Total portfolio value: €%.2f", totalValue));
 		title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 		title.setPadding(new Insets(10, 0, 0, 290));
 
@@ -64,8 +69,8 @@ public class MainDashboard extends BorderPane {
 		this.setTop(topBox);
 
 		// Grafiek en tabel
-		LineChart<String, Number> chart = buildPortfolioChart();
-		TableView<Investment> table = buildInvestmentTable();
+		chart = buildPortfolioChart();
+		table = buildInvestmentTable();
 
 		chart.setPrefSize(400, 250);
 		table.setPrefSize(400, 300);
@@ -109,8 +114,7 @@ public class MainDashboard extends BorderPane {
 			if (selectedInvestment != null && investmenthandler.doesInvestmentExist(selectedInvestment.getId())) {
 				investmenthandler.removeInvestment(selectedInvestment.getId());
 
-				// Verwijder uit de ObservableList, zodat de tabel update
-				investmentObservableList.remove(selectedInvestment);
+				refresh();
 			}
 		});
 
@@ -140,6 +144,21 @@ public class MainDashboard extends BorderPane {
 
 		Button addInvestment = new Button("Add a new investment");
 		Button screenshotPortfolio = new Button("Save your portfolio as a screenshot");
+
+		addInvestment.setOnAction(e -> {
+			Stage popupStage = new Stage();
+
+			addInvestmentWindow addWindow = new addInvestmentWindow(investmenthandler, user, this, primaryStage,
+					popupStage);
+			Scene scene = new Scene(addWindow, 500, 400);
+			popupStage.setTitle("Add New Investment");
+			popupStage.setScene(scene);
+			popupStage.initOwner(primaryStage);
+			popupStage.setResizable(false);
+
+			popupStage.show();
+
+		});
 
 		screenshotPortfolio.setOnAction(e -> {
 
@@ -179,9 +198,9 @@ public class MainDashboard extends BorderPane {
 
 		Button exportPortfolio = new Button("Export your portfolio as a CSV file (Excel)");
 
-		quickactionsbuttonsbox.getChildren().addAll(addInvestment, screenshotPortfolio, exportPortfolio);
+		quickactionsbuttonsbox.getChildren().addAll();
 
-		newsandquickactionsbox.getChildren().add(quickactionsbuttonsbox);
+		newsandquickactionsbox.getChildren().addAll(addInvestment, screenshotPortfolio, exportPortfolio);
 
 	}
 
@@ -314,6 +333,10 @@ public class MainDashboard extends BorderPane {
 
 		lineChart.getData().add(series);
 		return lineChart;
+	}
+
+	public void refresh() {
+		build();
 	}
 
 }

@@ -66,7 +66,7 @@ public class MarketAuxApiFetcher {
 
 				int status = connection.getResponseCode();
 
-				System.out.println("Response code: " + status);
+				System.out.println("MarketAux Response code: " + status);
 
 				if (status == HttpURLConnection.HTTP_OK) {
 					responseok = true;
