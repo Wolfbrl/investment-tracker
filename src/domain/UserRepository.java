@@ -28,7 +28,7 @@ public class UserRepository {
 	// 2. Sla één investment op
 	public static void saveInvestment(Investment investment) {
 		try (Connection conn = Database.connect()) {
-			String sql = "INSERT INTO investment (id, user, name, startDate, type, currency, initialValue, currentValue, profitLoss, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO investment (id, user, name, startDate, type, currency, startPrice, initialValue, currentValue, profitLoss, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, investment.getId());
 			ps.setString(2, investment.getUser());
@@ -36,10 +36,11 @@ public class UserRepository {
 			ps.setString(4, investment.getStartDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
 			ps.setString(5, investment.getType().name());
 			ps.setString(6, investment.getCurrency().name());
-			ps.setBigDecimal(7, investment.getInitialValue());
-			ps.setBigDecimal(8, investment.getCurrentValue());
-			ps.setBigDecimal(9, investment.getProfitOrLoss());
-			ps.setString(10, investment.getNote());
+			ps.setBigDecimal(7, investment.getStartPrice());
+			ps.setBigDecimal(8, investment.getInitialValue());
+			ps.setBigDecimal(9, investment.getCurrentValue());
+			ps.setBigDecimal(10, investment.getProfitOrLoss());
+			ps.setString(11, investment.getNote());
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -98,6 +99,7 @@ public class UserRepository {
 				LocalDate startDate = LocalDate.parse(rs.getString("startDate"));
 				InvestmentType type = InvestmentType.valueOf(rs.getString("type"));
 				Currencies currency = Currencies.valueOf(rs.getString("currency"));
+				BigDecimal startPrice = rs.getBigDecimal("startPrice");
 				BigDecimal initialValue = rs.getBigDecimal("initialValue");
 				BigDecimal currentValue = rs.getBigDecimal("currentValue");
 				String note = rs.getString("note");
@@ -105,8 +107,8 @@ public class UserRepository {
 				User user = giveAllUsers().stream().filter(x -> x.getUsername().equals(username)).findFirst()
 						.orElse(null);
 
-				Investment investment = new Investment(id, name, startDate, initialValue, currentValue, currency, type,
-						user.getUsername(), note);
+				Investment investment = new Investment(id, name, startDate, startPrice, initialValue, currentValue,
+						currency, type, user.getUsername(), note);
 				investments.add(investment);
 			}
 
@@ -158,6 +160,19 @@ public class UserRepository {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public void updateCurrentAmount(String investmentID, BigDecimal currentAmount) {
+		String sql = "UPDATE investment SET currentValue = ? WHERE id = ?";
+
+		try (Connection conn = Database.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setBigDecimal(1, currentAmount);
+			ps.setString(2, investmentID);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

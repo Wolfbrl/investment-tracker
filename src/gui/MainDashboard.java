@@ -7,11 +7,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import domain.*;
+import javafx.application.Platform;
 import javafx.collections.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.*;
@@ -20,6 +22,7 @@ import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class MainDashboard extends BorderPane {
@@ -33,6 +36,12 @@ public class MainDashboard extends BorderPane {
 	private LineChart<String, Number> chart;
 	Label title;
 
+	private final Font titleFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 24);
+	private final Font buttonFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Medium.ttf"), 12);
+	private final Font labelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 12);
+
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 	public MainDashboard(InvestmentHandler investmenthandler, Stage primaryStage, User user) {
 		this.primaryStage = primaryStage;
 		primaryStage.setMaximized(true);
@@ -43,26 +52,30 @@ public class MainDashboard extends BorderPane {
 
 	private void build() {
 
+		this.setStyle("-fx-background-color: white;");
+
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("Menu");
 		MenuItem dashboard = new MenuItem("Dashboard");
-		MenuItem news = new MenuItem("News");
 		MenuItem settings = new MenuItem("Settings");
 		MenuItem signout = new MenuItem("Sign out");
 		signout.setOnAction(e -> {
 			this.getScene().setRoot(new RegisterLoginScreen(this.investmenthandler, this.primaryStage));
 		});
 		dashboard.setDisable(true);
-		menu.getItems().addAll(dashboard, news, settings, signout);
+		menu.getItems().addAll(dashboard, settings, signout);
 
 		menuBar.getMenus().add(menu);
+
+		investmenthandler.updateCurrentValues();
 
 		BigDecimal totalValue = investmenthandler.giveAllInvestments().stream()
 				.filter(inv -> inv.getUser().equals(user.getUsername())).map(Investment::getCurrentValue)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
 		title = new Label(String.format(" Total portfolio value: €%.2f", totalValue));
-		title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+		title.setFont(labelFont);
+
 		title.setPadding(new Insets(10, 0, 0, 290));
 
 		VBox topBox = new VBox(menuBar, title);
@@ -102,14 +115,16 @@ public class MainDashboard extends BorderPane {
 		tableBox.setPadding(new Insets(0, 0, 35, 10)); // extra ruimte links
 		tableBox.setPadding(new Insets(0, 0, 35, 0));
 
-		Button sellInvestmentButton = new Button("Remove selected investment");
-		sellInvestmentButton.setDisable(true);
+		Button removeInvestmentButton = new Button("Remove selected investment");
+		removeInvestmentButton.setFont(buttonFont);
+
+		removeInvestmentButton.setDisable(true);
 
 		table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			sellInvestmentButton.setDisable(newSelection == null);
+			removeInvestmentButton.setDisable(newSelection == null);
 		});
 
-		sellInvestmentButton.setOnAction(e -> {
+		removeInvestmentButton.setOnAction(e -> {
 			Investment selectedInvestment = table.getSelectionModel().getSelectedItem();
 			if (selectedInvestment != null && investmenthandler.doesInvestmentExist(selectedInvestment.getId())) {
 				investmenthandler.removeInvestment(selectedInvestment.getId());
@@ -118,15 +133,17 @@ public class MainDashboard extends BorderPane {
 			}
 		});
 
-		VBox.setMargin(sellInvestmentButton, new Insets(10, 0, 0, 0)); // 20 px ruimte boven de button
+		VBox.setMargin(removeInvestmentButton, new Insets(10, 0, 0, 0)); // 20 px ruimte boven de button
 
-		tableBox.getChildren().add(sellInvestmentButton);
+		tableBox.getChildren().add(removeInvestmentButton);
 
 		grid.add(tableBox, 1, 0);
 
 		grid.setTranslateY(-40);
 
 		this.setCenter(grid);
+
+//		Button refreshButton 
 
 		// quick actions
 
@@ -135,7 +152,9 @@ public class MainDashboard extends BorderPane {
 		grid.add(newsandquickactionsbox, 0, 1);
 
 		Label quickactions = new Label("Quick Actions");
-		quickactions.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 4;");
+
+		quickactions.setStyle("-fx-padding: 0 0 0 4;");
+		quickactions.setFont(labelFont);
 
 		newsandquickactionsbox.getChildren().add(quickactions);
 
@@ -143,7 +162,9 @@ public class MainDashboard extends BorderPane {
 		quickactionsbuttonsbox.setSpacing(10);
 
 		Button addInvestment = new Button("Add a new investment");
+		addInvestment.setFont(buttonFont);
 		Button screenshotPortfolio = new Button("Save your portfolio as a screenshot");
+		screenshotPortfolio.setFont(buttonFont);
 
 		addInvestment.setOnAction(e -> {
 			Stage popupStage = new Stage();
@@ -197,11 +218,28 @@ public class MainDashboard extends BorderPane {
 		});
 
 		Button exportPortfolio = new Button("Export your portfolio as a CSV file (Excel)");
+		exportPortfolio.setFont(buttonFont);
 
 		quickactionsbuttonsbox.getChildren().addAll();
 
 		newsandquickactionsbox.getChildren().addAll(addInvestment, screenshotPortfolio, exportPortfolio);
 
+		Runnable run = () -> Platform.runLater(() -> {
+			investmenthandler.updateCurrentValues();
+			refresh();
+		});
+
+		scheduler.scheduleAtFixedRate(run, 0, 60, TimeUnit.SECONDS);
+
+		primaryStage.setOnCloseRequest(e -> {
+			shutdownScheduler();
+		});
+
+	}
+
+	public void shutdownScheduler() {
+		scheduler.shutdownNow();
+		System.out.println("Scheduler is gestopt");
 	}
 
 	private VBox displayNewsArticles() {
@@ -219,7 +257,9 @@ public class MainDashboard extends BorderPane {
 		newsbox.setPadding(new Insets(10));
 
 		Label newsboxlabel = new Label("Relevant News Articles Regarding Your Holdings");
-		newsboxlabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 0 0 0 4;");
+
+		newsboxlabel.setFont(labelFont);
+		newsboxlabel.setStyle("-fx-padding: 0 0 0 4;");
 
 		newsbox.getChildren().add(newsboxlabel);
 
@@ -238,7 +278,6 @@ public class MainDashboard extends BorderPane {
 				}
 			});
 
-			newsurl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
 			newsbox.getChildren().add(newsurl);
 
 		}
@@ -268,11 +307,11 @@ public class MainDashboard extends BorderPane {
 		typeCol.setCellValueFactory(
 				cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getType().toString()));
 
-		TableColumn<Investment, String> initialvalueCol = new TableColumn<>("initialValue");
+		TableColumn<Investment, String> initialvalueCol = new TableColumn<>("Initial Amount");
 		initialvalueCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
 				"€" + cellData.getValue().getInitialValue().toString()));
 
-		TableColumn<Investment, String> currentvalueCol = new TableColumn<>("currentValue");
+		TableColumn<Investment, String> currentvalueCol = new TableColumn<>("Current Amount");
 		currentvalueCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
 				"€" + cellData.getValue().getCurrentValue().toPlainString()));
 
@@ -296,15 +335,16 @@ public class MainDashboard extends BorderPane {
 		LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
 
 		lineChart.setLegendVisible(false);
+		lineChart.setCreateSymbols(true);
+		lineChart.setAnimated(false);
 		lineChart.setHorizontalGridLinesVisible(false);
 		lineChart.setVerticalGridLinesVisible(false);
-		lineChart.setCreateSymbols(false);
-		lineChart.setTitle("");
+		lineChart.lookup(".chart-plot-background").setStyle("-fx-background-color: white;");
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		XYChart.Series<String, Number> series = new XYChart.Series<>();
 
+		// Map voor totale waarde per dag
 		Map<LocalDate, BigDecimal> dailyTotals = new TreeMap<>();
-		Set<LocalDate> relevanteDatums = new TreeSet<>();
 
 		for (Investment inv : investmenthandler.giveAllInvestments()) {
 			if (!inv.getUser().equals(user.getUsername()))
@@ -313,22 +353,17 @@ public class MainDashboard extends BorderPane {
 			for (ValuePoint vp : inv.getSimulatedHistory()) {
 				LocalDate date = vp.getDate();
 				BigDecimal value = vp.getValue();
+
 				dailyTotals.put(date, dailyTotals.getOrDefault(date, BigDecimal.ZERO).add(value));
 			}
-			relevanteDatums.add(inv.getStartDate());
 		}
-		relevanteDatums.add(LocalDate.now());
 
-		xAxis.setAutoRanging(false);
-		xAxis.setCategories(
-				FXCollections.observableArrayList(relevanteDatums.stream().map(d -> d.format(formatter)).toList()));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-		XYChart.Series<String, Number> series = new XYChart.Series<>();
 		for (Map.Entry<LocalDate, BigDecimal> entry : dailyTotals.entrySet()) {
-			if (relevanteDatums.contains(entry.getKey())) {
-				String formattedDate = entry.getKey().format(formatter);
-				series.getData().add(new XYChart.Data<>(formattedDate, entry.getValue()));
-			}
+			String date = entry.getKey().format(formatter);
+			Number value = entry.getValue();
+			series.getData().add(new XYChart.Data<>(date, value));
 		}
 
 		lineChart.getData().add(series);
@@ -336,7 +371,26 @@ public class MainDashboard extends BorderPane {
 	}
 
 	public void refresh() {
-		build();
+		// Refresh de tabel
+		investmentObservableList.setAll(investmenthandler.giveAllInvestments().stream()
+				.filter(inv -> inv.getUser().equals(user.getUsername())).toList());
+
+		// Refresh de chart
+		updateChart();
+
+		// refresh label
+
+		BigDecimal totalValue = investmenthandler.giveAllInvestments().stream()
+				.filter(inv -> inv.getUser().equals(user.getUsername())).map(Investment::getCurrentValue)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		title.setText(String.format(" Total portfolio value: €%.2f", totalValue));
+
+	}
+
+	private void updateChart() {
+		chart.getData().clear();
+		chart.getData().add(buildPortfolioChart().getData().get(0));
 	}
 
 }

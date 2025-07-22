@@ -26,6 +26,7 @@ public class DatabaseInitializer {
 					    startDate TEXT,
 					    type TEXT,
 					    currency TEXT,
+					    startPrice REAL,
 					    initialValue REAL,
 					    currentValue REAL,
 					    profitLoss REAL,

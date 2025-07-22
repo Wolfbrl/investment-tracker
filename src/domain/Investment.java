@@ -19,14 +19,16 @@ public class Investment implements Comparable<Investment> {
 	private BigDecimal initialValue;
 	private BigDecimal currentValue;
 	private String user;
+	private BigDecimal startPrice;
 
 	private List<ValuePoint> valueHistory;
 
-	public Investment(String id, String name, LocalDate startDate, BigDecimal initialValue, BigDecimal currentValue,
-			Currencies currency, InvestmentType type, String user, String note) {
+	public Investment(String id, String name, LocalDate startDate, BigDecimal startPrice, BigDecimal initialValue,
+			BigDecimal currentValue, Currencies currency, InvestmentType type, String user, String note) {
 		this.id = id;
 		setName(name);
 		setStartDate(startDate);
+		setStartPrice(startPrice);
 		setInitialValue(initialValue);
 		setCurrentValue(currentValue);
 		setCurrency(currency);
@@ -36,6 +38,14 @@ public class Investment implements Comparable<Investment> {
 
 //		this.id = String.format("INV-%s-%s", type.name(), UUID.randomUUID().toString());
 
+	}
+
+	public BigDecimal getStartPrice() {
+		return startPrice;
+	}
+
+	public void setStartPrice(BigDecimal startPrice) {
+		this.startPrice = startPrice;
 	}
 
 	public String getUser() {

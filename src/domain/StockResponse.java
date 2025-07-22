@@ -1,11 +1,12 @@
 package domain;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class StockResponse {
 
 	private List<String> Symbol;
-	private List<Double> Mid;
+	private List<BigDecimal> Mid;
 	private List<String> Date;
 
 	public List<String> getSymbol() {
@@ -16,11 +17,11 @@ public class StockResponse {
 		this.Symbol = symbol;
 	}
 
-	public List<Double> getMid() {
+	public List<BigDecimal> getMid() {
 		return Mid;
 	}
 
-	public void setMid(List<Double> mid) {
+	public void setMid(List<BigDecimal> mid) {
 		this.Mid = mid;
 	}
 

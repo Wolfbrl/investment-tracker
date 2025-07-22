@@ -1,9 +1,10 @@
 package gui;
 
-import java.math.BigDecimal;
+import java.math.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import apis.MarketDataApiFetcher;
 import domain.*;
 import enums.*;
 import javafx.scene.control.*;
@@ -35,44 +36,68 @@ public class addInvestmentWindow extends VBox {
 
 //		StockResponse response = MarketDataApiFetcher.requestPrice("AAPL,TSLA");
 
-		Label symbol = new Label("Enter stock symbol");
-		TextField stockSymbol = new TextField("symbol");
+		Label symbol = new Label("Enter stock symbol (example: AAPL)");
+		TextField stockSymbol = new TextField("");
+		stockSymbol.setPromptText("AMZN");
 
 		LocalDate date;
 
 		Label amount = new Label("Enter amount");
-		TextField initialValue = new TextField("initial value");
-		TextField currentValue = new TextField("current value");
+		TextField initialValue = new TextField("");
+		initialValue.setPromptText("150");
 
 		Label notelabel = new Label("Add a note");
-		TextField note = new TextField("note");
+		TextField note = new TextField("");
+		note.setPromptText("Long term investment.");
 
 		HBox buttonbox = new HBox();
 
 		Button addButton = new Button("Add Investment");
 		Button removeButton = new Button("Clear All");
 
+		removeButton.setOnAction(e -> {
+			stockSymbol.setText("");
+			initialValue.setText("");
+			note.setText("");
+		});
+
 		buttonbox.getChildren().addAll(addButton, removeButton);
 
-		this.getChildren().addAll(symbol, stockSymbol, amount, initialValue, currentValue, notelabel, note, buttonbox);
+		this.getChildren().addAll(symbol, stockSymbol, amount, initialValue, notelabel, note, buttonbox);
 
 		addButton.setOnAction(e -> {
 			BigDecimal initialamount = BigDecimal.valueOf(Double.parseDouble(initialValue.getText()));
-
-			BigDecimal currentamount = BigDecimal.valueOf(Double.parseDouble(currentValue.getText()));
 			String id = UUID.randomUUID().toString();
 			InvestmentType investmenttype = InvestmentType.STOCK;
 			Currencies currency = Currencies.USD;
 			String invnote = note.getText();
 			String stocksymbol = stockSymbol.getText();
 
-			investmenthandler.addInvestment(id, stocksymbol, LocalDate.now(), initialamount, currentamount, currency,
-					investmenttype, user.getUsername(), invnote);
+			BigDecimal startPrice = MarketDataApiFetcher.requestPrice(stocksymbol).getMid().get(0);
+
+			BigDecimal actualCurrentAmount = calculateCurrentAmount(stocksymbol, initialamount, startPrice);
+
+			investmenthandler.addInvestment(id, stocksymbol, LocalDate.now(), startPrice, initialamount,
+					actualCurrentAmount, currency, investmenttype, user.getUsername(), invnote);
 
 			dashboard.refresh();
 
 			popupStage.close();
 		});
+
+	}
+
+	public static BigDecimal calculateCurrentAmount(String symbol, BigDecimal initialAmount, BigDecimal startPrice) {
+
+		BigDecimal newPrice = MarketDataApiFetcher.requestPrice(symbol).getMid().getFirst();
+
+		BigDecimal percentageChange = newPrice.subtract(startPrice).divide(startPrice, 10, RoundingMode.HALF_UP)
+				.multiply(BigDecimal.valueOf(100));
+
+		BigDecimal changeAmount = initialAmount.multiply(percentageChange).divide(BigDecimal.valueOf(100), 10,
+				RoundingMode.HALF_UP);
+
+		return initialAmount.add(changeAmount).setScale(2, RoundingMode.HALF_UP);
 
 	}
 

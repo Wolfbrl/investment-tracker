@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import enums.*;
+import gui.addInvestmentWindow;
 import utils.PasswordUtils;
 
 public class InvestmentHandler {
@@ -33,9 +34,10 @@ public class InvestmentHandler {
 		getInvestmentById(id).setNote(note);
 	}
 
-	public void addInvestment(String id, String name, LocalDate startDate, BigDecimal initialValue,
-			BigDecimal currentValue, Currencies currency, InvestmentType investmentType, String user, String note) {
-		Investment newInvestment = new Investment(id, name, startDate, initialValue, currentValue, currency,
+	public void addInvestment(String id, String name, LocalDate startDate, BigDecimal startPrice,
+			BigDecimal initialValue, BigDecimal currentValue, Currencies currency, InvestmentType investmentType,
+			String user, String note) {
+		Investment newInvestment = new Investment(id, name, startDate, startPrice, initialValue, currentValue, currency,
 				investmentType, user, note);
 		UserRepository.saveInvestment(newInvestment);
 
@@ -59,6 +61,18 @@ public class InvestmentHandler {
 
 	public boolean doesInvestmentExist(String investmentID) {
 		return repo.doesInvestmentExist(investmentID);
+	}
+
+	public void updateCurrentValues() {
+
+		for (Investment inv : repo.giveAllInvestments()) {
+			BigDecimal currentAmount = addInvestmentWindow.calculateCurrentAmount(inv.getName(), inv.getInitialValue(),
+					inv.getStartPrice());
+
+			repo.updateCurrentAmount(inv.getId(), currentAmount);
+
+		}
+
 	}
 
 }
