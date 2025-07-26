@@ -45,6 +45,9 @@ public class Investment implements Comparable<Investment> {
 	}
 
 	public void setStartPrice(BigDecimal startPrice) {
+		if (startPrice.doubleValue() < 0) {
+			throw new IllegalArgumentException("Start price can't be less than 0...");
+		}
 		this.startPrice = startPrice;
 	}
 
@@ -61,6 +64,9 @@ public class Investment implements Comparable<Investment> {
 	}
 
 	public void setInitialValue(BigDecimal initialValue) {
+		if (initialValue.doubleValue() <= 0) {
+			throw new IllegalArgumentException("amount cannot be less than or 0");
+		}
 		this.initialValue = initialValue;
 	}
 
@@ -69,6 +75,9 @@ public class Investment implements Comparable<Investment> {
 	}
 
 	public void setCurrentValue(BigDecimal currentValue) {
+		if (currentValue.doubleValue() < 0) {
+			throw new IllegalArgumentException("current value cannot be less than 0");
+		}
 		this.currentValue = currentValue;
 	}
 

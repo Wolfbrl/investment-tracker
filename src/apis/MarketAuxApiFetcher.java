@@ -85,7 +85,7 @@ public class MarketAuxApiFetcher {
 			} while (responseok == false);
 
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		} catch (Exception i) {
 			i.printStackTrace();
 		}

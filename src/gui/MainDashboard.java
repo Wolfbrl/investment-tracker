@@ -39,8 +39,12 @@ public class MainDashboard extends BorderPane {
 	private final Font titleFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 24);
 	private final Font buttonFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Medium.ttf"), 12);
 	private final Font labelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 12);
+	private final Font smallLabelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Light.ttf"), 12);
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+	private VBox newsandquickactionsbox;
+	private VBox newsbox;
 
 	public MainDashboard(InvestmentHandler investmenthandler, Stage primaryStage, User user) {
 		this.primaryStage = primaryStage;
@@ -147,7 +151,7 @@ public class MainDashboard extends BorderPane {
 
 		// quick actions
 
-		VBox newsandquickactionsbox = displayNewsArticles();
+		newsandquickactionsbox = displayNewsArticles();
 
 		grid.add(newsandquickactionsbox, 0, 1);
 
@@ -253,7 +257,7 @@ public class MainDashboard extends BorderPane {
 
 		List<Map<String, String>> lijstje = NewsHandler.requestNews(symbols, 3);
 
-		VBox newsbox = new VBox(10);
+		newsbox = new VBox(10);
 		newsbox.setPadding(new Insets(10));
 
 		Label newsboxlabel = new Label("Relevant News Articles Regarding Your Holdings");
@@ -263,22 +267,32 @@ public class MainDashboard extends BorderPane {
 
 		newsbox.getChildren().add(newsboxlabel);
 
-		for (Map<String, String> map : lijstje) {
+		if (lijstje.size() >= 1) {
+			for (Map<String, String> map : lijstje) {
 
-			Hyperlink newsurl = new Hyperlink(String.format("%s | %s", map.get("Symbols"), map.get("Title")));
+				Hyperlink newsurl = new Hyperlink(String.format("%s | %s", map.get("Symbols"), map.get("Title")));
 
-			newsurl.setOnAction(e -> {
-				try {
-					Desktop desktop = Desktop.getDesktop();
-					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-						desktop.browse(java.net.URI.create(map.get("URL")));
+				newsurl.setOnAction(e -> {
+					try {
+						Desktop desktop = Desktop.getDesktop();
+						if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+							desktop.browse(java.net.URI.create(map.get("URL")));
+						}
+					} catch (Exception ex) {
+						System.out.println(ex.getMessage());
 					}
-				} catch (Exception ex) {
-					System.out.println(ex.getMessage());
-				}
-			});
+				});
 
-			newsbox.getChildren().add(newsurl);
+				newsbox.getChildren().add(newsurl);
+
+			}
+		} else {
+			Label noArticles = new Label("no articles to display... add some investments");
+			noArticles.setFont(smallLabelFont);
+			noArticles.setStyle("-fx-padding: 0 0 0 4;");
+			noArticles.setPadding(new Insets(10));
+
+			newsbox.getChildren().add(noArticles);
 
 		}
 		newsbox.setAlignment(Pos.TOP_LEFT);
@@ -385,6 +399,8 @@ public class MainDashboard extends BorderPane {
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
 		title.setText(String.format(" Total portfolio value: €%.2f", totalValue));
+
+		// refresh news
 
 	}
 

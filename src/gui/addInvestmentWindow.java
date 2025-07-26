@@ -2,12 +2,13 @@ package gui;
 
 import java.math.*;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.*;
 
 import apis.MarketDataApiFetcher;
 import domain.*;
 import enums.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -18,6 +19,9 @@ public class addInvestmentWindow extends VBox {
 	private MainDashboard dashboard;
 	private Stage primaryStage;
 	private Stage popupStage;
+	private TextField stockSymbol;
+	private TextField initialValue;
+	private TextField note;
 
 	public addInvestmentWindow(InvestmentHandler investmenthandler, User user, MainDashboard dashboard,
 			Stage primaryStage, Stage popupstage) {
@@ -37,17 +41,17 @@ public class addInvestmentWindow extends VBox {
 //		StockResponse response = MarketDataApiFetcher.requestPrice("AAPL,TSLA");
 
 		Label symbol = new Label("Enter stock symbol (example: AAPL)");
-		TextField stockSymbol = new TextField("");
+		stockSymbol = new TextField("");
 		stockSymbol.setPromptText("AMZN");
 
 		LocalDate date;
 
 		Label amount = new Label("Enter amount");
-		TextField initialValue = new TextField("");
+		initialValue = new TextField("");
 		initialValue.setPromptText("150");
 
 		Label notelabel = new Label("Add a note");
-		TextField note = new TextField("");
+		note = new TextField("");
 		note.setPromptText("Long term investment.");
 
 		HBox buttonbox = new HBox();
@@ -56,9 +60,7 @@ public class addInvestmentWindow extends VBox {
 		Button removeButton = new Button("Clear All");
 
 		removeButton.setOnAction(e -> {
-			stockSymbol.setText("");
-			initialValue.setText("");
-			note.setText("");
+			clearAll();
 		});
 
 		buttonbox.getChildren().addAll(addButton, removeButton);
@@ -66,25 +68,50 @@ public class addInvestmentWindow extends VBox {
 		this.getChildren().addAll(symbol, stockSymbol, amount, initialValue, notelabel, note, buttonbox);
 
 		addButton.setOnAction(e -> {
-			BigDecimal initialamount = BigDecimal.valueOf(Double.parseDouble(initialValue.getText()));
-			String id = UUID.randomUUID().toString();
-			InvestmentType investmenttype = InvestmentType.STOCK;
-			Currencies currency = Currencies.USD;
-			String invnote = note.getText();
-			String stocksymbol = stockSymbol.getText();
+			try {
+				BigDecimal initialamount = BigDecimal.valueOf(Double.parseDouble(initialValue.getText()));
+				String id = UUID.randomUUID().toString();
+				InvestmentType investmenttype = InvestmentType.STOCK;
+				Currencies currency = Currencies.USD;
+				String invnote = note.getText();
+				String stocksymbol = stockSymbol.getText().toUpperCase();
 
-			BigDecimal startPrice = MarketDataApiFetcher.requestPrice(stocksymbol).getMid().get(0);
+				BigDecimal startPrice = MarketDataApiFetcher.requestPrice(stocksymbol).getMid().get(0);
 
-			BigDecimal actualCurrentAmount = calculateCurrentAmount(stocksymbol, initialamount, startPrice);
+				BigDecimal actualCurrentAmount = calculateCurrentAmount(stocksymbol, initialamount, startPrice);
 
-			investmenthandler.addInvestment(id, stocksymbol, LocalDate.now(), startPrice, initialamount,
-					actualCurrentAmount, currency, investmenttype, user.getUsername(), invnote);
+				investmenthandler.addInvestment(id, stocksymbol, LocalDate.now(), startPrice, initialamount,
+						actualCurrentAmount, currency, investmenttype, user.getUsername(), invnote);
 
-			dashboard.refresh();
+				dashboard.refresh();
 
-			popupStage.close();
+				popupStage.close();
+			} catch (NullPointerException i) {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText("An error has occured");
+				alert.setContentText(
+						"Couldn't retrieve data for this stock symbol. Please check if the symbol is valid.");
+				alert.show();
+
+			} catch (IllegalArgumentException z) {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText("An error has occured");
+				alert.setContentText(z.getMessage());
+				alert.show();
+			} catch (InputMismatchException a) {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText("An error has occured");
+				alert.setContentText("Please fill in a valid positive number");
+				alert.show();
+			}
 		});
 
+	}
+
+	private void clearAll() {
+		stockSymbol.setText("");
+		initialValue.setText("");
+		note.setText("");
 	}
 
 	public static BigDecimal calculateCurrentAmount(String symbol, BigDecimal initialAmount, BigDecimal startPrice) {
