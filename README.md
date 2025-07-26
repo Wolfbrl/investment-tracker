@@ -16,13 +16,13 @@ note: This is my very first project outside of school assignments, I know the co
   
 - Live News Feed Based On Holdings
 
+## Images
+
+<img src="/IMAGES/loginpage.png" alt="loginpage" width="50%" height="50%">
+
 ## How to run
 
 simply clone the repository and run the StartUp class.
 
-## Future Ideas
 
-- Export portfolio to PDF or CSV  
-- Online sync and cloud backup
-- Crypto support
 
