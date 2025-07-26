@@ -16,6 +16,9 @@ note: This is my very first project outside of school assignments, I know the co
   
 - Live News Feed Based On Holdings
 
+- ## How to run
+
+simply clone the repository and run the StartUp class.
 
 ## Future Ideas
 
