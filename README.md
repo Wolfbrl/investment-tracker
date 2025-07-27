@@ -4,25 +4,25 @@ A clean and minimalistic portfolio manager built in Java, designed to help users
 
 The application uses a local SQLite database to store all investment data securely on the user's machine — keeping things private and offline.
 
-note: This is my very first project outside of school assignments, I know the code is messy.
-
 ## Features
 
-- portfolio chart
+- Portfolio Chart
   
 - Investment Overview Table  
   
 - Live News Feed Based On Holdings
 
-- Export portfolio
+- Pie Chart Showing Your Holdings
+
+- Export Your Portfolio
 
 ## dashboard overview
 
 <img src="/IMAGES/main-dashboard.png" alt="loginpage" width="50%" height="50%">
 
-## How to run
+## software used
 
-simply clone the repository and run the StartUp class.
-
-
-
+ * Java
+ * SQLite
+ * MarketAux free Tier API (100 requests/day)
+ * MarketData free Tier API (100 requests/day)
