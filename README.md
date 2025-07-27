@@ -1,4 +1,6 @@
 # investment dashboard prototype
+
+<img src="/IMAGES/main-dashboard.png" alt="loginpage" width="50%" height="50%">
   
 A clean and minimalistic portfolio manager built in Java, designed to help users easily track their investments over time.
 
@@ -15,10 +17,6 @@ The application uses a local SQLite database to store all investment data secure
 - Pie Chart Showing Your Holdings
 
 - Export Your Portfolio
-
-## dashboard overview
-
-<img src="/IMAGES/main-dashboard.png" alt="loginpage" width="50%" height="50%">
 
 ## software used
 
