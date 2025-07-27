@@ -14,7 +14,6 @@ public class NewsArticle {
 	private String source;
 	private List<Entity> entities;
 
-	// Getters & setters
 	public String getTitle() {
 		return title;
 	}

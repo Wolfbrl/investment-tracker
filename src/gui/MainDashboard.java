@@ -391,7 +391,7 @@ public class MainDashboard extends BorderPane {
 	}
 
 	public void refresh() {
-		// Refresh de tabel
+		// Refresh tabel
 		investmentObservableList.setAll(investmenthandler.giveAllInvestments().stream()
 				.filter(inv -> inv.getUser().equals(user.getUsername())).toList());
 

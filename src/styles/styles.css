@@ -1,4 +1,4 @@
 .split-pane > .split-pane-divider {
-    -fx-padding: 1px; /* Maak het 1px dik */
-    -fx-background-color: transparent; /* of #A278F6 of helemaal verbergen */
+    -fx-padding: 1px; 
+    -fx-background-color: transparent; 
 }
