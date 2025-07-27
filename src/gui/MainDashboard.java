@@ -36,6 +36,8 @@ public class MainDashboard extends BorderPane {
 	private LineChart<String, Number> chart;
 	Label title;
 
+	private PieChart pieChart;
+
 	private final Font titleFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 24);
 	private final Font buttonFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Medium.ttf"), 12);
 	private final Font labelFont = Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Black.ttf"), 12);
@@ -155,6 +157,10 @@ public class MainDashboard extends BorderPane {
 
 		grid.add(newsandquickactionsbox, 0, 1);
 
+		pieChart = buildPortfolioPieChart();
+		pieChart.setPrefSize(400, 300);
+		grid.add(pieChart, 1, 1);
+
 		Label quickactions = new Label("Quick Actions");
 
 		quickactions.setStyle("-fx-padding: 0 0 0 4;");
@@ -243,7 +249,7 @@ public class MainDashboard extends BorderPane {
 
 	public void shutdownScheduler() {
 		scheduler.shutdownNow();
-		System.out.println("Scheduler is gestopt");
+		System.out.println("Scheduler closed");
 	}
 
 	private VBox displayNewsArticles() {
@@ -260,7 +266,7 @@ public class MainDashboard extends BorderPane {
 		newsbox = new VBox(10);
 		newsbox.setPadding(new Insets(10));
 
-		Label newsboxlabel = new Label("Relevant News Articles Regarding Your Holdings");
+		Label newsboxlabel = new Label("Relevant News Articles");
 
 		newsboxlabel.setFont(labelFont);
 		newsboxlabel.setStyle("-fx-padding: 0 0 0 4;");
@@ -287,7 +293,7 @@ public class MainDashboard extends BorderPane {
 
 			}
 		} else {
-			Label noArticles = new Label("no articles to display... add some investments");
+			Label noArticles = new Label("Add some investments to display articles");
 			noArticles.setFont(smallLabelFont);
 			noArticles.setStyle("-fx-padding: 0 0 0 4;");
 			noArticles.setPadding(new Insets(10));
@@ -400,13 +406,45 @@ public class MainDashboard extends BorderPane {
 
 		title.setText(String.format(" Total portfolio value: €%.2f", totalValue));
 
-		// refresh news
+		updatePieChart();
 
+	}
+
+	private void updatePieChart() {
+		pieChart.setData(buildPortfolioPieChart().getData());
 	}
 
 	private void updateChart() {
 		chart.getData().clear();
 		chart.getData().add(buildPortfolioChart().getData().get(0));
+	}
+
+	private PieChart buildPortfolioPieChart() {
+		PieChart pieChart = new PieChart();
+
+		List<Investment> userInvestments = investmenthandler.giveAllInvestments().stream()
+				.filter(inv -> inv.getUser().equals(user.getUsername())).toList();
+
+		BigDecimal totalValue = userInvestments.stream().map(Investment::getCurrentValue).reduce(BigDecimal.ZERO,
+				BigDecimal::add);
+
+		for (Investment inv : userInvestments) {
+			BigDecimal value = inv.getCurrentValue();
+			double percentage = totalValue.compareTo(BigDecimal.ZERO) > 0
+					? value.divide(totalValue, 4, BigDecimal.ROUND_HALF_UP).doubleValue() * 100
+					: 0;
+
+			String label = String.format("%s (%.1f%%)", inv.getName(), percentage);
+			PieChart.Data slice = new PieChart.Data(label, value.doubleValue());
+			pieChart.getData().add(slice);
+		}
+
+		pieChart.setLegendVisible(false);
+		pieChart.setLabelsVisible(true);
+		pieChart.setClockwise(true);
+		pieChart.setStartAngle(90);
+
+		return pieChart;
 	}
 
 }
